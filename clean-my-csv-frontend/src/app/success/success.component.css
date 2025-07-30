@@ -1,0 +1,9 @@
+.success-container {
+    max-width: 600px;
+    margin: 60px auto;
+    text-align: center;
+}
+
+.success-card {
+    padding: 2rem;
+}

@@ -17,6 +17,19 @@
         <mat-checkbox [(ngModel)]="dedupe">Remove duplicates</mat-checkbox>
     </div>
 
+    <div *ngIf="totalPreviewed > 0" class="summary-banner" @fadeSlideIn>
+        <p><strong>{{ totalPreviewed }} previewed row{{ totalPreviewed > 1 ? 's' : '' }}</strong> /
+            <strong>{{ rowsNeedingCleanup }} need cleanup</strong>
+        </p>
+        <ul>
+            <li *ngIf="totalEmpty > 0">{{ totalEmpty }} empty cell{{ totalEmpty > 1 ? 's' : '' }}</li>
+            <li *ngIf="totalWhitespace > 0">{{ totalWhitespace }} trailing whitespace issue{{ totalWhitespace > 1 ? 's' : ''
+                }}</li>
+            <li *ngIf="totalDuplicate > 0">{{ totalDuplicate }} duplicate row{{ totalDuplicate > 1 ? 's' : '' }}</li>
+        </ul>
+    </div>
+
+
     <div *ngIf="previewData.length > 0" class="table-wrapper">
         <table mat-table [dataSource]="previewData" class="mat-elevation-z8">
     

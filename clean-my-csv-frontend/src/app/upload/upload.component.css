@@ -49,3 +49,35 @@ button {
     border-radius: 4px;
     padding: 2px 6px;
 }
+
+.summary-banner {
+    background-color: #fff8e1;
+    border-left: 4px solid #ffc107;
+    padding: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+}
+
+.summary-banner ul {
+    margin: 0.5rem 0 0 1rem;
+    padding: 0;
+}
+
+@keyframes pulse-once {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.02);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.summary-banner {
+    animation: pulse-once 400ms ease-in-out;
+}

@@ -11,8 +11,17 @@ import { MatIconModule } from '@angular/material/icon';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltip } from '@angular/material/tooltip';
+import {
+  trigger,
+  state,
+  style,
+  animate,
+  transition
+} from '@angular/animations';
+
 
 import * as Papa from 'papaparse';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-upload',
@@ -31,7 +40,19 @@ import * as Papa from 'papaparse';
     MatTooltip
   ],
   templateUrl: './upload.component.html',
-  styleUrls: ['./upload.component.css']
+  styleUrls: ['./upload.component.css'],
+  animations: [
+    trigger('fadeSlideIn', [
+      transition(':enter', [
+        style({ opacity: 0, transform: 'translateY(-10px)' }),
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
+      ])
+    ])
+  ]
+
 })
 export class UploadComponent {
   trim = true;
@@ -43,6 +64,15 @@ export class UploadComponent {
 
   previewData: { value: string, error?: string }[][] = [];
   displayedColumns: string[] = [];
+
+  totalEmpty = 0;
+  totalWhitespace = 0;
+  totalDuplicate = 0;
+  rowsNeedingCleanup = 0;
+  totalPreviewed = 0;
+
+  constructor(private router: Router) { }
+
 
   onSubmit() {
     if (!this.selectedFile) return;
@@ -68,6 +98,7 @@ export class UploadComponent {
         a.href = url;
         a.download = `cleaned_${this.selectedFile.name}`;
         a.click();
+        this.router.navigate(['/success']);
       })
       .catch(err => alert('Upload failed.'));
   }
@@ -84,21 +115,44 @@ export class UploadComponent {
           const rows = rawData.slice(1);
 
           const seen = new Set<string>();
-          const previewRows = rows.slice(0, 5); // First 5 rows (excluding header)
+          const previewRows = rows.slice(0, 5);
+
+          this.totalEmpty = 0;
+          this.totalWhitespace = 0;
+          this.totalDuplicate = 0;
+          this.rowsNeedingCleanup = 0;
+          this.totalPreviewed = previewRows.length;
 
           const parsedPreview = previewRows.map(row => {
             const rowKey = row.join('||').trim();
             const isDuplicate = seen.has(rowKey);
             seen.add(rowKey);
 
-            return row.map(cell => {
-              const baseError = this.getCellError(cell);
-              const dupError = isDuplicate ? 'Duplicate row' : undefined;
+            let rowHasError = false;
 
-              // Combine errors if needed
-              const error = [baseError, dupError].filter(Boolean).join(', ') || undefined;
+            const parsedRow = row.map(cell => {
+              let error: string | undefined;
+              if (!cell.trim()) {
+                error = 'Empty cell';
+                this.totalEmpty++;
+              } else if (cell !== cell.trim()) {
+                error = 'Trailing whitespace';
+                this.totalWhitespace++;
+              }
+
+              if (isDuplicate) {
+                error = error ? `${error}, Duplicate row` : 'Duplicate row';
+                this.totalDuplicate++;
+              }
+
+              if (error) rowHasError = true;
+
               return { value: cell, error };
             });
+
+            if (rowHasError) this.rowsNeedingCleanup++;
+
+            return parsedRow;
           });
 
           this.previewData = parsedPreview;

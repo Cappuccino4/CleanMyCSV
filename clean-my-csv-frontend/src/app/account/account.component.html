@@ -1,0 +1,10 @@
+<div class="account-container">
+    <mat-card>
+        <h2>Your Account</h2>
+        <p><strong>Email:</strong> {{ user.email }}</p>
+        <p><strong>Plan:</strong> {{ user.isPro ? 'Pro' : 'Free' }}</p>
+        <p><strong>Cleans Used Today:</strong> {{ user.cleansToday }}</p>
+
+        <button mat-raised-button color="accent" *ngIf="!user.isPro">Upgrade</button>
+    </mat-card>
+</div>
