@@ -1,0 +1,42 @@
+<div class="upload-container">
+<mat-card>
+    <mat-card-title class="upload-title">Clean My CSV</mat-card-title>
+
+    <div class="drop-zone" (drop)="onFileDrop($event)" (dragover)="onDragOver($event)" (dragleave)="onDragLeave($event)"
+        [class.dragover]="isDragOver">
+        <p *ngIf="!selectedFile">Drag & drop your CSV here or click to upload</p>
+        <p *ngIf="selectedFile">Selected File: {{ selectedFile.name }}</p>
+        <input type="file" hidden #fileInput (change)="onFileSelected($event)" />
+        <button mat-button color="accent" (click)="fileInput.click()">Browse</button>
+    </div>
+
+
+    <div class="option-section">
+        <mat-checkbox [(ngModel)]="trim">Remove trailing whitespace</mat-checkbox>
+        <mat-checkbox [(ngModel)]="blanks">Remove blank rows</mat-checkbox>
+        <mat-checkbox [(ngModel)]="dedupe">Remove duplicates</mat-checkbox>
+    </div>
+
+    <div *ngIf="previewData.length > 0" class="table-wrapper">
+        <table mat-table [dataSource]="previewData" class="mat-elevation-z8">
+    
+            <ng-container *ngFor="let col of displayedColumns; let i = index" [matColumnDef]="col">
+                <th mat-header-cell *matHeaderCellDef>Col {{ i + 1 }}</th>
+                <td mat-cell *matCellDef="let row">
+                    <span [ngClass]="{ 'error-cell': row[i]?.error }" [matTooltip]="row[i]?.error">
+                        {{ row[i]?.value }}
+                    </span>
+                </td>
+            </ng-container>
+    
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    
+        </table>
+    </div>
+
+
+
+    <button mat-raised-button color="primary" (click)="onSubmit()">Clean It!</button>
+</mat-card>
+</div>
